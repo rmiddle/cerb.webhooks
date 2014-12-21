@@ -1,4 +1,121 @@
 <?php
+abstract class Extension_WebhookHandlerEngine extends DevblocksExtension {
+	const POINT = 'cerb.webhooks.handler.engine';
+	
+	protected $_config = null;
+	
+	public static function getAll($as_instances=false) {
+		$engines = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+		if($as_instances)
+			DevblocksPlatform::sortObjects($engines, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($engines, 'name');
+		return $engines;
+	}
+	
+	/**
+	 * @param string $id
+	 * @return Extension_WebhookHandlerEngine
+	 */
+	public static function get($id) {
+		static $extensions = null;
+		
+		if(isset($extensions[$id]))
+			return $extensions[$id];
+		
+		if(!isset($extensions[$id])) {
+			if(null == ($ext = DevblocksPlatform::getExtension($id, true)))
+				return;
+			
+			if(!($ext instanceof Extension_WebhookHandlerEngine))
+				return;
+			
+			$extensions[$id] = $ext;
+			return $ext;
+		}
+	}
+	
+	function getConfig() {
+		if(is_null($this->_config)) {
+			$this->_config = $this->getParams();
+		}
+		
+		return $this->_config;
+	}
+	
+	abstract function renderConfig(Model_WebhookHandler $model);
+	abstract function handleWebhookRequest(Model_WebhookHandler $webhook);
+};
+
+class WebhookHandlerEngine_VirtualAttendantBehavior extends Extension_WebhookHandlerEngine {
+	const ID = 'cerb.webhooks.handler.engine.va';
+	
+	function renderConfig(Model_WebhookHandler $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('engine', $this);
+		$tpl->assign('params', $model->extension_id == $this->manifest->id ? $model->extension_params : array());
+		
+		$behaviors = DAO_TriggerEvent::getReadableByActor($active_worker, 'event.webhook.received', false);
+		$virtual_attendants = DAO_VirtualAttendant::getReadableByActor($active_worker);
+
+		// Filter virtual attendants to those with existing behaviors
+		
+		$visible_va_ids = array();
+
+		if(is_array($behaviors));
+		foreach($behaviors as $behavior_id => $behavior) {
+			$visible_va_ids[$behavior->virtual_attendant_id] = true;
+		}
+		
+		$virtual_attendants = array_filter($virtual_attendants, function($va) use ($visible_va_ids) {
+			if(isset($visible_va_ids[$va->id]))
+				return true;
+			
+			return false;
+		});
+		
+		$tpl->assign('behaviors', $behaviors);
+		$tpl->assign('virtual_attendants', $virtual_attendants);
+		
+		$tpl->display('devblocks:cerb.webhooks::webhook_handler/engines/va.tpl');
+	}
+	
+	function handleWebhookRequest(Model_WebhookHandler $webhook) {
+		if(false == ($behavior_id = @$webhook->extension_params['behavior_id']))
+			return false;
+
+		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			return false;
+		
+		$variables = array();
+		
+		$dicts = Event_WebhookReceived::trigger($behavior->id, $variables);
+		$dict = $dicts[$behavior->id];
+
+		if(!($dict instanceof DevblocksDictionaryDelegate))
+			return;
+		
+		// HTTP response headers
+		
+		if(isset($dict->_http_response_headers) && is_array($dict->_http_response_headers)) {
+			foreach($dict->_http_response_headers as $header_k => $header_v) {
+				header(sprintf("%s: %s",
+					$header_k,
+					$header_v
+				));
+			}
+		}
+		
+		// HTTP response body
+		
+		if(isset($dict->_http_response_body)) {
+			echo $dict->_http_response_body;
+		}
+	}
+};
+
 class Controller_Webhooks implements DevblocksHttpRequestHandler {
 	
 	function handleRequest(DevblocksHttpRequest $request) {

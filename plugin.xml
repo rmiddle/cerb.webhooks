@@ -161,6 +161,18 @@
 			</params>
 		</extension>
 		
+		<!-- Webhook Handler Engines -->
+	
+		<extension point="cerb.webhooks.handler.engine">
+			<id>cerb.webhooks.handler.engine.va</id>
+			<name>Virtual Attendant Behavior</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WebhookHandlerEngine_VirtualAttendantBehavior</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
 	
 	</extensions>
 </plugin>
