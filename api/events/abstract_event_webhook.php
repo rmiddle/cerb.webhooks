@@ -284,6 +284,8 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'send_email' => array('label' => 'Send email'),
 				'set_links' => array('label' => 'Set links'),
+				'set_http_header' => array('label' => 'Set HTTP response header'),
+				'set_http_body' => array('label' => 'Set HTTP response body'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
@@ -302,6 +304,14 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'set_http_header':
+				$tpl->display('devblocks:cerb.webhooks::events/action_set_http_header.tpl');
+				break;
+				
+			case 'set_http_body':
+				$tpl->display('devblocks:cerb.webhooks::events/action_set_http_body.tpl');
+				break;
+				
 			case 'add_watchers':
 				DevblocksEventHelper::renderActionAddWatchers($trigger);
 				break;
@@ -351,6 +361,35 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'set_http_header':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+				@$name = $tpl_builder->build($params['name'], $dict);
+				@$value = $tpl_builder->build($params['value'], $dict);
+
+				if(!isset($dict->_http_response_headers) || !is_array($dict->_http_response_headers))
+					$dict->_http_response_headers = array();
+				
+				$dict->_http_response_headers[$name] = $value;
+				
+				return sprintf(">>> Setting HTTP response header:\n%s: %s\n",
+					$name,
+					$value
+				);
+				break;
+				
+			case 'set_http_body':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+				@$value = $tpl_builder->build($params['value'], $dict);
+
+				$dict->_http_response_body = $value;
+				
+				return sprintf(">>> Setting HTTP response body:\n%s\n",
+					$value
+				);
+				break;
+			
 			case 'add_watchers':
 				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'va_id');
 				break;
@@ -393,6 +432,27 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'set_http_header':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+				@$name = $tpl_builder->build($params['name'], $dict);
+				@$value = $tpl_builder->build($params['value'], $dict);
+
+				if(!isset($dict->_http_response_headers) || !is_array($dict->_http_response_headers))
+					$dict->_http_response_headers = array();
+				
+				$dict->_http_response_headers[$name] = $value;
+				break;
+				
+			case 'set_http_body':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+				@$value = $tpl_builder->build($params['value'], $dict);
+				
+				if(false !== $value)
+					$dict->_http_response_body = $value;
+				break;
+			
 			case 'add_watchers':
 				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'va_id');
 				break;
