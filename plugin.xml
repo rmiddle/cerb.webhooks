@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerb.webhooks</id>
+	<name>Webhooks</name>
+	<description>This plugin enables Cerb to catch webhooks and execute Virtual Attendant behaviors in response.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>0.0.2</version>
+	<link>http://cerbweb.com/book/latest/developer_guide/plugins/plugin.xml</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.9" max="6.9.99" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="6.9.0" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="6.9.0" revision="1" file="patches/6.9.0.php" />
+	</patches>
+
+	<!-- Classloader -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="Extension_WebhookHandlerEngine" />
+		</file>
+	
+		<file path="api/dao/webhook_handler.php">
+			<class name="Context_WebhookHandler" />
+			<class name="DAO_WebhookHandler" />
+			<class name="Model_WebhookHandler" />
+			<class name="SearchFields_WebhookHandler" />
+			<class name="View_WebhookHandler" />
+		</file>
+		
+	
+	</class_loader>
+
+	<!-- Extensions -->
+
+	<extensions>
+	
+		<!-- Controllers -->
+	
+		<extension point="devblocks.controller">
+			<id>webhooks.controller</id>
+			<name>Webhooks Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Controller_Webhooks</name>
+			</class>
+			<params>
+				<param key="uri" value="webhooks" />
+			</params>
+		</extension>
+		
+		
+		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.webhook_handler</id>
+			<name>Webhook Handler</name>
+			<class>
+				<file>api/dao/webhook_handler.php</file>
+				<name>Context_WebhookHandler</name>
+			</class>
+			<params>
+				<param key="alias" value="webhook_handler" />
+				<param key="dao_class" value="DAO_WebhookHandler" />
+				<param key="view_class" value="View_WebhookHandler" />
+				<param key="options">
+					<value>
+						<!--<data key="create" />-->
+						<!--<data key="custom_fields" />-->
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
+						<!--<data key="va_variable" />-->
+						<!--<data key="workspace" />-->
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>webhooks.page.profiles.webhook_handler</id>
+			<name>Webhook Handler Section</name>
+			<class>
+				<file>api/profile/webhook_handler.php</file>
+				<name>PageSection_ProfilesWebhookHandler</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="webhook_handler" />
+			</params>
+		</extension>
+		
+	
+	</extensions>
+</plugin>
