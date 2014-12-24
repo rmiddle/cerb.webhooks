@@ -84,6 +84,21 @@ class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('cerberusweb.contexts.webhook_handler', $webhook_handler->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
+		// Link counts
+		
+		$properties_links = array(
+			'cerberusweb.contexts.webhook_handler' => array(
+				$webhook_handler->id => 
+					DAO_ContextLink::getContextLinkCounts(
+						'cerberusweb.contexts.webhook_handler',
+						$webhook_handler->id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
+		);
+		
+		$tpl->assign('properties_links', $properties_links);
+		
 		// Properties
 		
 		$tpl->assign('properties', $properties);
