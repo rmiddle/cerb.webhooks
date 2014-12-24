@@ -18,6 +18,17 @@
 abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 
+	private function _getHttpBody() {
+		$contents = "";
+		
+		$body_data = fopen( "php://input" , "rb" );
+		while(!feof( $body_data ))
+			$contents .= fread($body_data, 4096);
+		fclose($body_data);
+		
+		return $contents;
+	}
+	
 	/**
 	 *
 	 * @return Model_DevblocksEvent
@@ -44,7 +55,12 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 		
 		$labels['http_verb'] = 'HTTP verb';
 		$values['http_verb'] = strtoupper($_SERVER['REQUEST_METHOD']);
-
+		
+		// HTTP body
+		
+		$labels['http_body'] = 'HTTP body';
+		$values['http_body'] = $this->_getHttpBody();
+		
 		// Populate HTTP headers
 		
 		$values['http_headers'] = array();
