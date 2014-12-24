@@ -1,8 +1,8 @@
-{$page_context = 'cerberusweb.contexts.webhook_handler'}
-{$page_context_id = $webhook_handler->id}
+{$page_context = 'cerberusweb.contexts.webhook_listener'}
+{$page_context_id = $webhook_listener->id}
 
 <div style="float:left">
-	<h1>{$webhook_handler->name}</h1>
+	<h1>{$webhook_listener->name}</h1>
 </div>
 
 <div style="float:right;">
@@ -22,11 +22,11 @@
 		</span>
 		
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=profiles&type=webhook_handler&id={$page_context_id}-{$webhook_handler->name|devblocks_permalink}{/devblocks_url}
+		{devblocks_url assign=return_url full=true}c=profiles&type=webhook_listener&id={$page_context_id}-{$webhook_listener->name|devblocks_permalink}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
-		<button type="button" id="btnDisplayWebhookHandlerEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		<button type="button" id="btnDisplayWebhookListenerEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -40,7 +40,7 @@
 </div>
 
 <fieldset class="properties">
-	<legend>{'Webhook Handler'|devblocks_translate|capitalize}</legend>
+	<legend>{'Webhook Listener'|devblocks_translate|capitalize}</legend>
 
 	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}
@@ -72,7 +72,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="webhook_handlerTabs">
+<div id="webhook_listenerTabs">
 	<ul>
 		{$tabs = [activity,comments,links]}
 
@@ -98,11 +98,11 @@
 		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 		tabOptions.active = {$selected_tab_idx};
 	
-		var tabs = $("#webhook_handlerTabs").tabs(tabOptions);
+		var tabs = $("#webhook_listenerTabs").tabs(tabOptions);
 		
-		$('#btnDisplayWebhookHandlerEdit').bind('click', function() {
+		$('#btnDisplayWebhookListenerEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
-			$popup.one('webhook_handler_save', function(event) {
+			$popup.one('webhook_listener_save', function(event) {
 				event.stopPropagation();
 				document.location.reload();
 			});
@@ -136,13 +136,13 @@ $(document).keypress(function(event) {
 		case 58:  // (0) tab cycle
 			try {
 				idx = event.which-49;
-				$tabs = $("#webhook_handlerTabs").tabs();
+				$tabs = $("#webhook_listenerTabs").tabs();
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { }
 			break;
 		case 101:  // (E) edit
 			try {
-				$('#btnDisplayWebhookHandlerEdit').click();
+				$('#btnDisplayWebhookListenerEdit').click();
 			} catch(ex) { }
 			break;
 		case 109:  // (M) macros

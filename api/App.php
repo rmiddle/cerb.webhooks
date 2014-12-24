@@ -1,6 +1,6 @@
 <?php
-abstract class Extension_WebhookHandlerEngine extends DevblocksExtension {
-	const POINT = 'cerb.webhooks.handler.engine';
+abstract class Extension_WebhookListenerEngine extends DevblocksExtension {
+	const POINT = 'cerb.webhooks.listener.engine';
 	
 	protected $_config = null;
 	
@@ -15,7 +15,7 @@ abstract class Extension_WebhookHandlerEngine extends DevblocksExtension {
 	
 	/**
 	 * @param string $id
-	 * @return Extension_WebhookHandlerEngine
+	 * @return Extension_WebhookListenerEngine
 	 */
 	public static function get($id) {
 		static $extensions = null;
@@ -27,7 +27,7 @@ abstract class Extension_WebhookHandlerEngine extends DevblocksExtension {
 			if(null == ($ext = DevblocksPlatform::getExtension($id, true)))
 				return;
 			
-			if(!($ext instanceof Extension_WebhookHandlerEngine))
+			if(!($ext instanceof Extension_WebhookListenerEngine))
 				return;
 			
 			$extensions[$id] = $ext;
@@ -43,14 +43,14 @@ abstract class Extension_WebhookHandlerEngine extends DevblocksExtension {
 		return $this->_config;
 	}
 	
-	abstract function renderConfig(Model_WebhookHandler $model);
-	abstract function handleWebhookRequest(Model_WebhookHandler $webhook);
+	abstract function renderConfig(Model_WebhookListener $model);
+	abstract function handleWebhookRequest(Model_WebhookListener $webhook);
 };
 
-class WebhookHandlerEngine_VirtualAttendantBehavior extends Extension_WebhookHandlerEngine {
-	const ID = 'cerb.webhooks.handler.engine.va';
+class WebhookListenerEngine_VirtualAttendantBehavior extends Extension_WebhookListenerEngine {
+	const ID = 'cerb.webhooks.listener.engine.va';
 	
-	function renderConfig(Model_WebhookHandler $model) {
+	function renderConfig(Model_WebhookListener $model) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -79,10 +79,10 @@ class WebhookHandlerEngine_VirtualAttendantBehavior extends Extension_WebhookHan
 		$tpl->assign('behaviors', $behaviors);
 		$tpl->assign('virtual_attendants', $virtual_attendants);
 		
-		$tpl->display('devblocks:cerb.webhooks::webhook_handler/engines/va.tpl');
+		$tpl->display('devblocks:cerb.webhooks::webhook_listener/engines/va.tpl');
 	}
 	
-	function handleWebhookRequest(Model_WebhookHandler $webhook) {
+	function handleWebhookRequest(Model_WebhookListener $webhook) {
 		if(false == ($behavior_id = @$webhook->extension_params['behavior_id']))
 			return false;
 
@@ -125,10 +125,10 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 		array_shift($stack); // webhooks
 		@$guid = array_shift($stack); // guid
 		
-		if(empty($guid) || false == ($webhook = DAO_WebhookHandler::getByGUID($guid)))
+		if(empty($guid) || false == ($webhook = DAO_WebhookListener::getByGUID($guid)))
 			return;
 		
-		// Load the webhook handler extension
+		// Load the webhook listener extension
 		
 		if(false == ($webhook_ext = $webhook->getExtension()))
 			return;
@@ -149,8 +149,8 @@ class Webhooks_SetupPageSection extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 	
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_WebhookHandler';
-		$defaults->id = 'setup_webhook_handlers';
+		$defaults->class_name = 'View_WebhookListener';
+		$defaults->id = 'setup_webhook_listeners';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);

@@ -1,10 +1,10 @@
-{$view_context = 'cerberusweb.contexts.webhook_handler'}
+{$view_context = 'cerberusweb.contexts.webhook_listener'}
 {$view_fields = $view->getColumnsAvailable()}
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
 
-{$webhook_handler_exts = Extension_WebhookHandlerEngine::getAll(false)}
+{$webhook_listener_exts = Extension_WebhookListenerEngine::getAll(false)}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -32,7 +32,7 @@
 <input type="hidden" name="context_id" value="{$view_context}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="webhook_handler">
+<input type="hidden" name="section" value="webhook_listener">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
@@ -74,7 +74,7 @@
 			{elseif $column == "w_name"}
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&type=webhook_handler&id={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.w_name}</a>
+				<a href="{devblocks_url}c=profiles&type=webhook_listener&id={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.w_name}</a>
 				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.w_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 			{elseif $column == "w_guid"}
@@ -83,8 +83,8 @@
 			</td>
 			{elseif $column == "w_extension_id"}
 			<td>
-				{if isset($webhook_handler_exts.{$result.$column})}
-					{$webhook_handler_exts.{$result.$column}->name}
+				{if isset($webhook_listener_exts.{$result.$column})}
+					{$webhook_listener_exts.{$result.$column}->name}
 				{/if}
 			</td>
 			{elseif $column == "w_updated_at"}
@@ -129,7 +129,7 @@
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{*
-		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction§ion=webhook_handler&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction§ion=webhook_listener&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		*}
 	</div>
 	{/if}

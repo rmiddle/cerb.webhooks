@@ -30,15 +30,15 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="Extension_WebhookHandlerEngine" />
+			<class name="Extension_WebhookListenerEngine" />
 		</file>
 	
-		<file path="api/dao/webhook_handler.php">
-			<class name="Context_WebhookHandler" />
-			<class name="DAO_WebhookHandler" />
-			<class name="Model_WebhookHandler" />
-			<class name="SearchFields_WebhookHandler" />
-			<class name="View_WebhookHandler" />
+		<file path="api/dao/webhook_listener.php">
+			<class name="Context_WebhookListener" />
+			<class name="DAO_WebhookListener" />
+			<class name="Model_WebhookListener" />
+			<class name="SearchFields_WebhookListener" />
+			<class name="View_WebhookListener" />
 		</file>
 		
 		<file path="api/events/abstract_event_webhook.php">
@@ -93,16 +93,16 @@
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">
-			<id>cerberusweb.contexts.webhook_handler</id>
-			<name>Webhook Handler</name>
+			<id>cerberusweb.contexts.webhook_listener</id>
+			<name>Webhook Listener</name>
 			<class>
-				<file>api/dao/webhook_handler.php</file>
-				<name>Context_WebhookHandler</name>
+				<file>api/dao/webhook_listener.php</file>
+				<name>Context_WebhookListener</name>
 			</class>
 			<params>
-				<param key="alias" value="webhook_handler" />
-				<param key="dao_class" value="DAO_WebhookHandler" />
-				<param key="view_class" value="View_WebhookHandler" />
+				<param key="alias" value="webhook_listener" />
+				<param key="dao_class" value="DAO_WebhookListener" />
+				<param key="view_class" value="View_WebhookListener" />
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
@@ -119,15 +119,15 @@
 		<!-- Profile Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">
-			<id>webhooks.page.profiles.webhook_handler</id>
-			<name>Webhook Handler Section</name>
+			<id>webhooks.page.profiles.webhook_listener</id>
+			<name>Webhook Listener Section</name>
 			<class>
-				<file>api/profile/webhook_handler.php</file>
-				<name>PageSection_ProfilesWebhookHandler</name>
+				<file>api/profile/webhook_listener.php</file>
+				<name>PageSection_ProfilesWebhookListener</name>
 			</class>
 			<params>
 				<param key="page_id" value="core.page.profiles" />
-				<param key="uri" value="webhook_handler" />
+				<param key="uri" value="webhook_listener" />
 			</params>
 		</extension>
 		
@@ -161,14 +161,14 @@
 			</params>
 		</extension>
 		
-		<!-- Webhook Handler Engines -->
+		<!-- Webhook Listener Engines -->
 	
-		<extension point="cerb.webhooks.handler.engine">
-			<id>cerb.webhooks.handler.engine.va</id>
+		<extension point="cerb.webhooks.listener.engine">
+			<id>cerb.webhooks.listener.engine.va</id>
 			<name>Virtual Attendant Behavior</name>
 			<class>
 				<file>api/App.php</file>
-				<name>WebhookHandlerEngine_VirtualAttendantBehavior</name>
+				<name>WebhookListenerEngine_VirtualAttendantBehavior</name>
 			</class>
 			<params>
 			</params>

@@ -4,11 +4,11 @@ $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
-// webhook_handler
+// webhook_listener
 
-if(!isset($tables['webhook_handler'])) {
+if(!isset($tables['webhook_listener'])) {
 	$sql = sprintf("
-		CREATE TABLE IF NOT EXISTS webhook_handler (
+		CREATE TABLE IF NOT EXISTS webhook_listener (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) DEFAULT '',
 			guid VARCHAR(40) DEFAULT '',
@@ -21,7 +21,7 @@ if(!isset($tables['webhook_handler'])) {
 	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
-	$tables['webhook_handler'] = 'webhook_handler';
+	$tables['webhook_listener'] = 'webhook_listener';
 }
 
 return TRUE;

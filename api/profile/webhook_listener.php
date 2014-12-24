@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
+class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
@@ -25,19 +25,19 @@ class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
-		@array_shift($stack); // webhook_handler
+		@array_shift($stack); // webhook_listener
 		$id = array_shift($stack); // 123
 
 		@$id = intval($id);
 		
-		if(null == ($webhook_handler = DAO_WebhookHandler::get($id))) {
+		if(null == ($webhook_listener = DAO_WebhookListener::get($id))) {
 			return;
 		}
-		$tpl->assign('webhook_handler', $webhook_handler);
+		$tpl->assign('webhook_listener', $webhook_listener);
 	
 		// Tab persistence
 		
-		$point = 'profiles.webhook_handler.tab';
+		$point = 'profiles.webhook_listener.tab';
 		$tpl->assign('point', $point);
 		
 		if(null == (@$tab_selected = $stack[0])) {
@@ -53,45 +53,45 @@ class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
 		$properties['extension_id'] = array(
 			'label' => ucfirst($translate->_('common.type')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $webhook_handler->extension_id,
+			'value' => $webhook_listener->extension_id,
 		);
 	
 		// [TODO] HREF?
 		$properties['guid'] = array(
 			'label' => ucfirst($translate->_('common.guid')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $webhook_handler->guid,
+			'value' => $webhook_listener->guid,
 		);
 		
 		$properties['updated'] = array(
 			'label' => ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $webhook_handler->updated_at,
+			'value' => $webhook_listener->updated_at,
 		);
 		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.webhook_handler', $webhook_handler->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.webhook_listener', $webhook_listener->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields('cerberusweb.contexts.webhook_handler', $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields('cerberusweb.contexts.webhook_listener', $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('cerberusweb.contexts.webhook_handler', $webhook_handler->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('cerberusweb.contexts.webhook_listener', $webhook_listener->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			'cerberusweb.contexts.webhook_handler' => array(
-				$webhook_handler->id => 
+			'cerberusweb.contexts.webhook_listener' => array(
+				$webhook_listener->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						'cerberusweb.contexts.webhook_handler',
-						$webhook_handler->id,
+						'cerberusweb.contexts.webhook_listener',
+						$webhook_listener->id,
 						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
@@ -107,16 +107,16 @@ class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
 		
 		$macros = DAO_TriggerEvent::getReadableByActor(
 			$active_worker,
-			'event.macro.webhook_handler'
+			'event.macro.webhook_listener'
 		);
 		$tpl->assign('macros', $macros);
 
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, 'cerberusweb.contexts.webhook_handler');
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, 'cerberusweb.contexts.webhook_listener');
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
-		$tpl->display('devblocks:cerb.webhooks::webhook_handler/profile.tpl');
+		$tpl->display('devblocks:cerb.webhooks::webhook_listener/profile.tpl');
 	}
 	
 	function savePeekAction() {
@@ -128,7 +128,7 @@ class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($id) && !empty($do_delete)) { // Delete
-			DAO_WebhookHandler::delete($id);
+			DAO_WebhookListener::delete($id);
 			
 		} else {
 			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
@@ -140,38 +140,38 @@ class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
 			
 			if(empty($id)) { // New
 				$fields = array(
-					DAO_WebhookHandler::UPDATED_AT => time(),
-					DAO_WebhookHandler::NAME => $name,
-					DAO_WebhookHandler::GUID => sha1($name . time() . mt_rand(0,10000)),
-					DAO_WebhookHandler::EXTENSION_ID => $extension_id,
-					DAO_WebhookHandler::EXTENSION_PARAMS_JSON => $extension_params_json,
+					DAO_WebhookListener::UPDATED_AT => time(),
+					DAO_WebhookListener::NAME => $name,
+					DAO_WebhookListener::GUID => sha1($name . time() . mt_rand(0,10000)),
+					DAO_WebhookListener::EXTENSION_ID => $extension_id,
+					DAO_WebhookListener::EXTENSION_PARAMS_JSON => $extension_params_json,
 				);
-				$id = DAO_WebhookHandler::create($fields);
+				$id = DAO_WebhookListener::create($fields);
 				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
 				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
 				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink('cerberusweb.contexts.webhook_handler', $id, $link_context, $link_context_id);
+					DAO_ContextLink::setLink('cerberusweb.contexts.webhook_listener', $id, $link_context, $link_context_id);
 				}
 				
 				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.webhook_handler', $id);
+					C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.webhook_listener', $id);
 				
 			} else { // Edit
 				$fields = array(
-					DAO_WebhookHandler::UPDATED_AT => time(),
-					DAO_WebhookHandler::NAME => $name,
-					DAO_WebhookHandler::EXTENSION_ID => $extension_id,
-					DAO_WebhookHandler::EXTENSION_PARAMS_JSON => $extension_params_json,
+					DAO_WebhookListener::UPDATED_AT => time(),
+					DAO_WebhookListener::NAME => $name,
+					DAO_WebhookListener::EXTENSION_ID => $extension_id,
+					DAO_WebhookListener::EXTENSION_PARAMS_JSON => $extension_params_json,
 				);
-				DAO_WebhookHandler::update($id, $fields);
+				DAO_WebhookListener::update($id, $fields);
 				
 			}
 
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.webhook_handler', $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.webhook_listener', $id, $field_ids);
 		}
 	}
 	
@@ -213,8 +213,8 @@ class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=webhook_handler', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.webhook_handler.explore.toolbar',
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=webhook_listener', true),
+					'toolbar_extension_id' => 'cerberusweb.contexts.webhook_listener.explore.toolbar',
 				);
 				$models[] = $model;
 				
@@ -226,13 +226,13 @@ class PageSection_ProfilesWebhookHandler extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=webhook_handler&id=%d-%s", $row[SearchFields_WebhookHandler::ID], DevblocksPlatform::strToPermalink($row[SearchFields_WebhookHandler::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=webhook_listener&id=%d-%s", $row[SearchFields_WebhookListener::ID], DevblocksPlatform::strToPermalink($row[SearchFields_WebhookListener::NAME])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
 				$model->params = array(
-					'id' => $row[SearchFields_WebhookHandler::ID],
+					'id' => $row[SearchFields_WebhookListener::ID],
 					'url' => $url,
 				);
 				$models[] = $model;
