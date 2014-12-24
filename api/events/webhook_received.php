@@ -25,6 +25,8 @@ class Event_WebhookReceived extends AbstractEvent_Webhook {
 	
 	static function trigger($trigger_id, $variables=array()) {
 
+		// [TODO] Abstract the HTTP headers/params? 
+		
 		if(false == ($behavior = DAO_TriggerEvent::get($trigger_id)))
 			return;
 		

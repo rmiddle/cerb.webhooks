@@ -122,10 +122,13 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 		$stack = $request->path;
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		// [TODO] Restrict by IP?
+		
 		array_shift($stack); // webhooks
 		@$guid = array_shift($stack); // guid
 		
 		if(empty($guid) || false == ($webhook = DAO_WebhookListener::getByGUID($guid)))
+			// [TODO] Return an HTTP failed status code
 			return;
 		
 		// Load the webhook listener extension
