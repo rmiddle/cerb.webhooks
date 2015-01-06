@@ -302,6 +302,7 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 				'set_links' => array('label' => 'Set links'),
 				'set_http_header' => array('label' => 'Set HTTP response header'),
 				'set_http_body' => array('label' => 'Set HTTP response body'),
+				'set_timezone' => array('label' => 'Set timezone'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
@@ -326,6 +327,10 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 				
 			case 'set_http_body':
 				$tpl->display('devblocks:cerb.webhooks::events/action_set_http_body.tpl');
+				break;
+				
+			case 'set_timezone':
+				DevblocksEventHelper::renderActionSetVariableString($labels);
 				break;
 				
 			case 'add_watchers':
@@ -406,6 +411,19 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 				);
 				break;
 			
+			case 'set_timezone':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+				@$value = $tpl_builder->build($params['value'], $dict);
+
+				@date_default_timezone_set($value);
+				
+				return sprintf(">>> Setting timezone: %s\nCurrent time is %s\n",
+					$value,
+					date(DevblocksPlatform::getDateTimeFormat())
+				);
+				break;
+			
 			case 'add_watchers':
 				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'va_id');
 				break;
@@ -467,6 +485,14 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 				
 				if(false !== $value)
 					$dict->_http_response_body = $value;
+				break;
+				
+			case 'set_timezone':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+				@$value = $tpl_builder->build($params['value'], $dict);
+
+				@date_default_timezone_set($value);
 				break;
 			
 			case 'add_watchers':
